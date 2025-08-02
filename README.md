@@ -1,20 +1,19 @@
-# scaling-rotary-phone
-scaling-rotary-phone
+# Flask Todo API
 
-A simple ToDo Task app built with Flask and CORS-enabled API.
-
-## Features
-
-- Add, edit, delete, and list tasks.
-- CORS-enabled for frontend integration.
-- Minimal setup, easy to deploy.
+This is a simple Flask-based Todo REST API with CORS enabled and Gunicorn-ready.
 
 ## Setup
 
 ```bash
-git clone https://github.com/your-username/flask_todo_app.git
-cd flask_todo_app
+# Create virtual env
 python3 -m venv venv
 source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Run locally
 python app.py
+
+# Or with gunicorn
+gunicorn app:app
