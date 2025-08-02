@@ -1,19 +1,14 @@
-# Flask Todo API
+# PHP Dummy ToDo App
 
-This is a simple Flask-based Todo REST API with CORS enabled and Gunicorn-ready.
+Simple ToDo app using PHP with dummy array storage (no database).
 
-## Setup
+## Features
+- Add, View, Delete, Update tasks
+- Simulated backend
+- API enabled for external use (CORS)
+- Works on shared hosting like Hostinger
 
-```bash
-# Create virtual env
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run locally
-python app.py
-
-# Or with gunicorn
-gunicorn app:app
+## Deploy Instructions
+1. Upload folder to `public_html`
+2. Access from browser
+3. API folder = `/api/`

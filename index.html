@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dummy PHP ToDo App</title>
+</head>
+<body>
+  <h1>My ToDo List</h1>
+  <ul id="taskList"></ul>
+  <input type="text" id="taskInput" placeholder="New Task" />
+  <button onclick="addTask()">Add</button>
+
+  <script>
+    const API_BASE = './api';
+
+    async function loadTasks() {
+      const res = await fetch(`${API_BASE}/get_tasks.php`);
+      const tasks = await res.json();
+      const list = document.getElementById('taskList');
+      list.innerHTML = '';
+      tasks.forEach(task => {
+        list.innerHTML += `<li>${task.title} - ${task.completed ? '✅' : '❌'}</li>`;
+      });
+    }
+
+    async function addTask() {
+      const title = document.getElementById('taskInput').value;
+      if (!title) return;
+      await fetch(`${API_BASE}/add_task.php`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title })
+      });
+      document.getElementById('taskInput').value = '';
+      loadTasks();
+    }
+
+    loadTasks();
+  </script>
+</body>
+</html>
