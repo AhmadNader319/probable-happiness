@@ -1,40 +1,221 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Dummy PHP ToDo App</title>
+    <meta charset="UTF-8">
+    <title>My ToDo App</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .task-input-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        span {
+            flex-grow: 1;
+            cursor: pointer;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-  <h1>My ToDo List</h1>
-  <ul id="taskList"></ul>
-  <input type="text" id="taskInput" placeholder="New Task" />
-  <button onclick="addTask()">Add</button>
 
-  <script>
-    const API_BASE = './api';
+    <div class="container">
+        <h1>My ToDo List</h1>
 
-    async function loadTasks() {
-      const res = await fetch(`${API_BASE}/get_tasks.php`);
-      const tasks = await res.json();
-      const list = document.getElementById('taskList');
-      list.innerHTML = '';
-      tasks.forEach(task => {
-        list.innerHTML += `<li>${task.title} - ${task.completed ? '✅' : '❌'}</li>`;
-      });
-    }
+        <div class="task-input-container">
+            <input type="text" id="taskInput" placeholder="New Task" />
+            <button onclick="addTask()">Add Task</button>
+        </div>
 
-    async function addTask() {
-      const title = document.getElementById('taskInput').value;
-      if (!title) return;
-      await fetch(`${API_BASE}/add_task.php`, {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title })
-      });
-      document.getElementById('taskInput').value = '';
-      loadTasks();
-    }
+        <ul id="taskList"></ul>
 
-    loadTasks();
-  </script>
+        <div id="statusMessage" class="error-message" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'replace-it-with-your-base-url';
+
+        function showStatus(message) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideStatus() {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.style.display = 'none';
+        }
+
+        async function handleResponse(response) {
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`HTTP ${response.status} - ${text}`);
+            }
+            return response.json();
+        }
+
+        async function loadTasks() {
+            hideStatus();
+            try {
+                const res = await fetch(`${API_BASE}/replace-with-your-endpoint`);
+                const tasks = await handleResponse(res);
+                const list = document.getElementById('taskList');
+                list.innerHTML = '';
+
+                tasks.forEach(task => {
+                    const listItem = document.createElement('li');
+                    const isCompleted = task.completed == 1;
+
+                    const titleSpan = document.createElement('span');
+                    titleSpan.textContent = task.title;
+                    if (isCompleted) {
+                        titleSpan.classList.add('completed');
+                    }
+                    titleSpan.onclick = () => toggleComplete(task.id);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.classList.add('delete-btn');
+                    deleteButton.onclick = () => deleteTask(task.id);
+
+                    listItem.appendChild(titleSpan);
+                    listItem.appendChild(deleteButton);
+                    list.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error("Load Tasks Error:", error);
+                showStatus(`Error loading tasks: ${error.message}`);
+            }
+        }
+
+        async function addTask() {
+            hideStatus();
+            const titleInput = document.getElementById('taskInput');
+            const title = titleInput.value.trim();
+            if (!title) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/replace-with-your-endpoint`, {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title })
+                });
+                const data = await handleResponse(res);
+                if (data.success) {
+                    titleInput.value = '';
+                    loadTasks();
+                } else {
+                    showStatus(`Error adding task: ${data.error || "Unknown error"}`);
+                }
+            } catch (error) {
+                console.error("Add Task Error:", error);
+                showStatus(`Failed to add task: ${error.message}`);
+            }
+        }
+
+        async function deleteTask(id) {
+            hideStatus();
+            try {
+                const res = await fetch(`${API_BASE}/replace-with-your-endpoint`, {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id })
+                });
+                const data = await handleResponse(res);
+                if (data.success) {
+                    loadTasks();
+                } else {
+                    showStatus(`Delete failed: ${data.error || "Unknown error"}`);
+                }
+            } catch (error) {
+                console.error("Delete Task Error:", error);
+                showStatus(`Failed to delete task: ${error.message}`);
+            }
+        }
+
+        async function toggleComplete(id) {
+            hideStatus();
+            try {
+                const res = await fetch(`${API_BASE}/replace-with-your-endpoint`, { 
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id })
+                });
+                const data = await handleResponse(res);
+                if (data.success) {
+                    loadTasks();
+                } else {
+                    showStatus(`Update failed: ${data.error || "Unknown error"}`);
+                }
+            } catch (error) {
+                console.error("Toggle Complete Error:", error);
+                showStatus(`Failed to update task: ${error.message}`);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTasks);
+    </script>
 </body>
 </html>
